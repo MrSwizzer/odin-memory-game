@@ -3,15 +3,15 @@ import { useEffect, useState } from 'react';
 import Card from './Card';
 
 export default function Gameboard() {
-	const [dogImages, setDogImages] = useState([{ id: '', imageUrl: '', clicked: false }]);
+	const [dogImages, setDogImages] = useState([{ id: '', imageUrl: '', clicked: false, altText: '' }]);
 	const [loading, setLoading] = useState(true);
 	const [score, setScore] = useState(0);
 	const [highScore, setHighscore] = useState(0);
-	const APIKEY = import.meta.env.VITE_DOG_API_KEY;
 
 	useEffect(() => {
 		const fetchDogImages = async () => {
 			const offset = Math.floor(Math.random() * 100);
+			const APIKEY = import.meta.env.VITE_GIPHY_API_KEY;
 			try {
 				const res = await fetch(
 					`https://api.giphy.com/v1/gifs/search?api_key=${APIKEY}&q=dogs&limit=10&offset=${offset}`
@@ -20,7 +20,14 @@ export default function Gameboard() {
 				console.log(data);
 
 				if (data.data.length > 0) {
-					setDogImages(data.data.map((img) => ({ id: img.id, imageUrl: img.images.fixed_height.url, clicked: false })));
+					setDogImages(
+						data.data.map((img) => ({
+							id: img.id,
+							imageUrl: img.images.fixed_height.url,
+							clicked: false,
+							altText: img.title,
+						}))
+					);
 
 					setLoading(false);
 				} else {
@@ -70,11 +77,26 @@ export default function Gameboard() {
 
 	return (
 		<>
-			<div className="score">Score: {score}</div>
-			<div className="highScore">Highscore: {highScore}</div>
+			<div className="scores">
+				<div className="score">Score: {score}</div>
+				<h1>
+					<span>M</span>
+					<span> e</span>
+					<span> m</span>
+					<span> o</span>
+					<span> r</span>
+					<span> y</span>
+					<span>{'\u00A0'}</span>
+					<span> G</span>
+					<span> a</span>
+					<span> m</span>
+					<span> e</span>
+				</h1>
+				<div className="highscore">Highscore: {highScore}</div>
+			</div>
 			<div className="cardsContainer">
 				{shuffleArray(dogImages).map((item) => (
-					<Card key={item.id} imageUrl={item.imageUrl} onClick={() => handleClick(item.id)} clicked={item.clicked} />
+					<Card key={item.id} imageUrl={item.imageUrl} onClick={() => handleClick(item.id)} altText={item.altText} />
 				))}
 			</div>
 		</>

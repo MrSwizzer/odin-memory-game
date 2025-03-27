@@ -1,8 +1,7 @@
-export default function Card({ imageUrl, onClick, clicked }) {
+export default function Card({ imageUrl, onClick, altText }) {
 	return (
 		<div className="cardContainer">
-			{clicked && <span>Clicked</span>}
-			<img className="cardImage" src={imageUrl} alt="Random Dog" onClick={onClick} />
+			<img className="cardImage" src={imageUrl} alt={altText} onClick={onClick} />
 		</div>
 	);
 }
