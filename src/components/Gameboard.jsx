@@ -5,12 +5,17 @@ import Card from './Card';
 export default function Gameboard() {
 	const [dogImages, setDogImages] = useState([{ id: '', imageUrl: '', clicked: false }]);
 	const [loading, setLoading] = useState(true);
+	const [score, setScore] = useState(0);
+	const [highScore, setHighscore] = useState(0);
 	const APIKEY = import.meta.env.VITE_DOG_API_KEY;
 
 	useEffect(() => {
 		const fetchDogImages = async () => {
+			const offset = Math.floor(Math.random() * 100);
 			try {
-				const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${APIKEY}&q=dogs&limit=10`);
+				const res = await fetch(
+					`https://api.giphy.com/v1/gifs/search?api_key=${APIKEY}&q=dogs&limit=10&offset=${offset}`
+				);
 				const data = await res.json();
 				console.log(data);
 
@@ -36,7 +41,22 @@ export default function Gameboard() {
 	}
 
 	function handleClick(itemId) {
-		setDogImages((prev) => prev.map((entry) => (entry.id === itemId ? { ...entry, clicked: true } : entry)));
+		const currentImage = dogImages.find((entry) => entry.id === itemId);
+
+		if (currentImage.clicked) {
+			setDogImages((prev) => prev.map((entry) => ({ ...entry, clicked: false })));
+
+			setScore(0);
+		} else {
+			setDogImages((prev) => prev.map((entry) => (entry.id === itemId ? { ...entry, clicked: true } : entry)));
+			setScore((prevState) => {
+				const newScore = prevState + 1;
+				if (newScore > highScore) {
+					setHighscore(newScore);
+				}
+				return newScore;
+			});
+		}
 	}
 
 	function shuffleArray(array) {
@@ -48,15 +68,15 @@ export default function Gameboard() {
 		return shuffledArray;
 	}
 
-	const shuffledImages = shuffleArray(dogImages);
-
 	return (
-		<div className="cardsContainer">
-			{shuffledImages.map((item) => (
-				<>
+		<>
+			<div className="score">Score: {score}</div>
+			<div className="highScore">Highscore: {highScore}</div>
+			<div className="cardsContainer">
+				{shuffleArray(dogImages).map((item) => (
 					<Card key={item.id} imageUrl={item.imageUrl} onClick={() => handleClick(item.id)} clicked={item.clicked} />
-				</>
-			))}
-		</div>
+				))}
+			</div>
+		</>
 	);
 }
